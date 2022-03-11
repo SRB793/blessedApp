@@ -1,5 +1,7 @@
 import { LoginSwagger } from "./login-swagger.js";
-import {RegisterSwagger} from "./register-swagger.js";
+import { RegisterSwagger } from "./register-swagger.js";
+import { AuthenticateSwagger } from "./authenticate-swagger.js";
+
 export const swaggerDocument = {
   openapi: "3.0.1",
   info: {
@@ -13,7 +15,6 @@ export const swaggerDocument = {
       url: "https://blessed.com",
     },
   },
-  servers: [{ url: "http://localhost:3010/api" }],
   components: {
     schemas: {
       reqParameter: {
@@ -37,11 +38,14 @@ export const swaggerDocument = {
     },
   },
   paths: {
-    "/login": {
+    "/api/login": {
       post: LoginSwagger,
     },
-    "/register": {
-        post: RegisterSwagger,
+    "/api/register": {
+      post: RegisterSwagger,
+    },
+    "/api/authenticate": {
+      post: AuthenticateSwagger,
     },
   },
 };

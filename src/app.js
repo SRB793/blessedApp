@@ -18,6 +18,6 @@ app.use(bodyparser.urlencoded({extended : false}));
 app.use(bodyparser.json());
 app.use(cookieparser());
 app.use('/api', indexRouter);
-app.listen(3010, () => {
-    console.log('Server started on port 3010');
+app.listen((process.env.PORT || 5000), () => {
+  console.log('Server started');
 });

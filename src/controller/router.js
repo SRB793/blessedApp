@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 import db from "../../config/database.js";
 import express from "express";
-import {generatePassword} from "../service/helper.js";
+import { generatePassword, addUser, updateUser, getUser } from "../service/helper.js";
+import {verify as tokenService} from "../service/token.js";
 export const router = express.Router();
 
 //Login
@@ -80,9 +81,7 @@ router.post("/register", async (req, res) => {
               req.body.firstname
             )}, ${db.escape(req.body.lastname)}, '1', ${db.escape(
               req.body.username
-            )}, ${db.escape(
-              req.body.email
-            )}, "${password}" , 0)`,
+            )}, ${db.escape(req.body.email)}, "${password}" , 0)`,
             (err, result) => {
               if (err) {
                 return res.status(400).send({
@@ -98,4 +97,35 @@ router.post("/register", async (req, res) => {
       }
     }
   );
+});
+
+// Authenticate
+router.post("/authenticate", (req, res) => {
+  const { token, email, apple_id, firstName, lastName } = req.body;
+  const registeredUser = { apple_id, email, firstName, lastName };
+  getUser(apple_id, (user, err) => {
+    if (err) {
+      res.status(401).send(err.message);
+    } else if (!isEmpty(user)) {
+      if (email && email !== user.email) {
+        updateUser(req.body);
+        user.email = req.body.email;
+      }
+      res.status(200).send(user);
+    } else {
+      tokenService.verify(req.body, (err) => {
+        if (err) {
+          res.status(401).send(err.message);
+        } else {
+          addUser(req.body, (success, err) => {
+            if (err) {
+              res.status(401).send(err.message);
+            } else {
+              res.status(200).send(registeredUser);
+            }
+          });
+        }
+      });
+    }
+  });
 });
